@@ -1,10 +1,12 @@
- import 'package:app_cooking/model/data.dart';
+import 'package:app_cooking/model/data.dart';
+import 'package:app_cooking/provider/home_filter_provider.dart';
 import 'package:app_cooking/router/app_router.dart';
 import 'package:app_cooking/theme/app_theme.dart';
 import 'package:app_cooking/widget/main_food_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 import '../services/authentication.dart';
 import '../widget/filter_item.dart';
@@ -18,7 +20,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -40,9 +43,7 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                       "Hello ${Authentication.userFromFirebase(FirebaseAuth.instance.currentUser)!.displayName}",
                       style: AppTheme.largeBold(color: Colors.black),
                     ),
-                    const SizedBox(
-          
-                    ),
+                    const SizedBox(),
                     Text(
                       "What are you cooking today?",
                       style: AppTheme.smallerRegular(color: AppTheme.gray3),
@@ -53,13 +54,11 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                   height: 40,
                   width: 40,
                   decoration: BoxDecoration(
-                    color: AppTheme.secondary40,
-                    borderRadius: BorderRadius.circular(10),
-                    image: const DecorationImage(
-                      image: AssetImage("assets/util/profile.png"),
-                      fit: BoxFit.cover
-                    )
-                  ),
+                      color: AppTheme.secondary40,
+                      borderRadius: BorderRadius.circular(10),
+                      image: const DecorationImage(
+                          image: AssetImage("assets/util/profile.png"),
+                          fit: BoxFit.cover)),
                 )
               ],
             ),
@@ -72,19 +71,20 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
               children: [
                 // SEARCHSECTION
                 SearchTextField(
-                  onTap: (){
+                  onTap: () {
                     Navigator.pushNamed(context, AppRoute.search);
                   },
                 ),
-                const SizedBox(width: 20,),
+                const SizedBox(
+                  width: 20,
+                ),
                 MaterialButton(
                   height: 50,
                   minWidth: 50,
                   color: AppTheme.primary100,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)
-                  ),
-                  onPressed: (){},
+                      borderRadius: BorderRadius.circular(10)),
+                  onPressed: () {},
                   child: Center(
                     child: SvgPicture.asset("assets/icons/setting.svg"),
                   ),
@@ -101,10 +101,26 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
               physics: const BouncingScrollPhysics(),
               scrollDirection: Axis.horizontal,
               children: [
-                const SizedBox(width: 30,),
-                for(String element in Data.listFilter1)
-                  FilterItem(title: element),
-                const SizedBox(width: 30,),
+                const SizedBox(
+                  width: 30,
+                ),
+                for (String element in Data.listFilter1)
+                  Consumer<HomeFilterState>(
+                      builder: (context, homeFilterStae, widget) {
+                    String currentTitle = homeFilterStae.currentTitle;
+                    return CustomContainer(
+                      onTap: () {
+                        Provider.of<HomeFilterState>(context, listen: false)
+                            .changeTitle(element);
+                      },
+                      title: element,
+                      isSelected: currentTitle == element,
+                    );
+                  }),
+                // FilterItem(title: element),
+                const SizedBox(
+                  width: 30,
+                ),
               ],
             ),
           ),
@@ -117,42 +133,67 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
               physics: const BouncingScrollPhysics(),
               scrollDirection: Axis.horizontal,
               children: [
-                const SizedBox(width: 30,),
-                for(String element in Data.listFilter2)
-                  FilterItem(title: element),
-                const SizedBox(width: 30,),
+                const SizedBox(
+                  width: 30,
+                ),
+                for (String element in Data.listFilter2)
+                  Consumer<HomeFilterState>(
+                      builder: (context, homeFilterStae, widget) {
+                    String currentSubTitle = homeFilterStae.currentSubTile;
+                    return CustomContainer(
+                      onTap: () {
+                        Provider.of<HomeFilterState>(context, listen: false)
+                            .changeSubTile(element);
+                      },
+                      title: element,
+                      isSelected: currentSubTitle == element,
+                    );
+                  }),
+                const SizedBox(
+                  width: 30,
+                ),
               ],
             ),
           ),
-          
-          const SizedBox(height: 25,),
+
+          const SizedBox(
+            height: 25,
+          ),
           // FODCARD SECTION
           SizedBox(
             height: 231,
             child: FutureBuilder(
-              future: Data.getListFoodHome(),
-              builder: (context, snapshot) {
-                if(snapshot.connectionState == ConnectionState.waiting) return const Center( child: CircularProgressIndicator(color: AppTheme.primary100,),);
-                if (snapshot.hasError) {
-                  return const Text("Error");
-                }
-                return ListView(
-                  physics: const BouncingScrollPhysics(),
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    const SizedBox(width: 30,),
-                    for(Map<String, dynamic> item in snapshot.data!)
-                      MainFoodCard(
-                        title: item['title'],
-                        image: item['image'],
-                        time: item['time'],
-                        rating: item['rating'],
+                future: Data.getListFoodHome(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.primary100,
                       ),
-                    const SizedBox(width: 30,),
-                  ],
-                );
-              }
-            ),            
+                    );
+                  if (snapshot.hasError) {
+                    return const Text("Error");
+                  }
+                  return ListView(
+                    physics: const BouncingScrollPhysics(),
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      const SizedBox(
+                        width: 30,
+                      ),
+                      for (Map<String, dynamic> item in snapshot.data!)
+                        MainFoodCard(
+                          title: item['title'],
+                          image: item['image'],
+                          time: item['time'],
+                          rating: item['rating'].toDouble(),
+                        ),
+                      const SizedBox(
+                        width: 30,
+                      ),
+                    ],
+                  );
+                }),
           ),
 
           Padding(
@@ -166,32 +207,39 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
           SizedBox(
             height: 127,
             child: FutureBuilder(
-              future: Data.getListHomePost(),
-              builder: (context, snapshot){
-                if(snapshot.connectionState == ConnectionState.waiting) return const Center( child: CircularProgressIndicator(color: AppTheme.primary100,),);
-                if (snapshot.hasError) {
-                  return const Text("Error");
-                }
-                return ListView(
-                physics: const BouncingScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                children: [
-                  const SizedBox(width: 30,),
-                  for(Map<String, dynamic> item in snapshot.data! )
-                    HomePost(
-                      title: item['title'],
-                      postImage: item['postImage'],
-                      author: item['author'],
-                      profileImage: item['profileImage'],
-                      time: item['time'],
-                      rating: item['rating'],
-                    )
-                ]
-              );
-            }
-            ),
+                future: Data.getListHomePost(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.primary100,
+                      ),
+                    );
+                  if (snapshot.hasError) {
+                    return const Text("Error");
+                  }
+                  return ListView(
+                      physics: const BouncingScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        const SizedBox(
+                          width: 30,
+                        ),
+                        for (Map<String, dynamic> item in snapshot.data!)
+                          HomePost(
+                            title: item['title'],
+                            postImage: item['postImage'],
+                            author: item['author'],
+                            profileImage: item['profileImage'],
+                            time: item['time'],
+                            rating: item['rating'],
+                          )
+                      ]);
+                }),
           ),
-          const SizedBox(height: 120,)
+          const SizedBox(
+            height: 120,
+          )
         ],
       ),
     );
