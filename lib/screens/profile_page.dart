@@ -21,16 +21,14 @@ class ProfilePage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: IconButton(
-              onPressed: (){}, 
-              icon: const Icon(
-                Icons.keyboard_control,
-                color: Colors.black,
-              )
-            ),
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.keyboard_control,
+                  color: Colors.black,
+                )),
           )
         ],
       ),
-
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(

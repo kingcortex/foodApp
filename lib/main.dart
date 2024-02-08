@@ -10,15 +10,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'bottom_navigation/botom_navigation_provider.dart';
 
-
 import 'firebase_options.dart';
 import 'screens/search_recipes_page.dart';
-Future<void> main() async{
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
-  );
-  
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   await MySharedPreference.init();
   runApp(const MyApp());
 }
@@ -30,19 +28,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (context) => BottomNAvigationState()
-        ),
-        ChangeNotifierProvider(
-          create: (context) => HomeFilterState()
-        )
+        ChangeNotifierProvider(create: (context) => BottomNAvigationState()),
+        ChangeNotifierProvider(create: (context) => HomeFilterState())
       ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
         // onGenerateRoute: onGenerateRoute,
         title: "Cooking",
         onGenerateRoute: onGenerateRoute,
-        
       ),
     );
   }

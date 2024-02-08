@@ -127,38 +127,6 @@ class _HomePageState extends State<HomePage>
           const SizedBox(
             height: 20,
           ),
-          SizedBox(
-            height: 31,
-            child: ListView(
-              physics: const BouncingScrollPhysics(),
-              scrollDirection: Axis.horizontal,
-              children: [
-                const SizedBox(
-                  width: 30,
-                ),
-                for (String element in Data.listFilter2)
-                  Consumer<HomeFilterState>(
-                      builder: (context, homeFilterStae, widget) {
-                    String currentSubTitle = homeFilterStae.currentSubTile;
-                    return CustomContainer(
-                      onTap: () {
-                        Provider.of<HomeFilterState>(context, listen: false)
-                            .changeSubTile(element);
-                      },
-                      title: element,
-                      isSelected: currentSubTitle == element,
-                    );
-                  }),
-                const SizedBox(
-                  width: 30,
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(
-            height: 25,
-          ),
           // FODCARD SECTION
           SizedBox(
             height: 231,
